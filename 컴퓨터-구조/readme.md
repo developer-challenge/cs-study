@@ -8,19 +8,22 @@
 ### 추가 교재 및 참고자료
 
 <details>
-<summary>영상 : [컴퓨터시스템구조](https://www.youtube.com/playlist?list=PLc8fQ-m7b1hCHTT7VH2oo0Ng7Et096dYc) (23H)</summary>
+<summary>영상 : <a href="https://www.youtube.com/playlist?list=PLc8fQ-m7b1hCHTT7VH2oo0Ng7Et096dYc">컴퓨터시스템구조</a>
+ (23H)</summary>
 컴퓨터 공학과 교수님께서 정규 교과과목을 온라인으로 진행한 영상이며 컴퓨터시스템구조(제3판) 교재에 대한 강의이므로 교재로 학습하기에도 좋습니다.
 </details>
 
 <details>
-<summary>교재 : [밑바닥부터 만드는 컴퓨팅 시스템](http://www.kyobobook.co.kr/product/detailViewKor.laf?mallGb=KOR&ejkGb=KOR&linkClass&barcode=9788966262427)</summary>
+<summary>교재 : <a href="http://www.kyobobook.co.kr/product/detailViewKor.laf?mallGb=KOR&ejkGb=KOR&linkClass&barcode=9788966262427">밑바닥부터 만드는 컴퓨팅 시스템</a>
+</summary>
 MIT의 컴퓨터과학 교재로 사용되고 있음  
 
 기본적인 하드웨어 플랫폼과 현대적인 소프트웨어 계층을 밑바닥에서부터 차근차근 구성해 보는 12개의 장과 프로젝트로 이루어져 있으며, 이 과정을 통해 학생들은 하드웨어 아키텍처, 운영체제, 프로그래밍 언어, 컴파일러, 데이터 구조, 알고리즘 및 소프트웨어 공학에 대해 실용적인 지식을 얻을 수 있음
 
 * 추가 참고 교재 : [컴퓨터-구조 & 운영체제](https://brainwave.tistory.com/895)
 <details>
-<summary>추가 참고 교재 : [한 권으로 읽는 컴퓨터-구조와 프로그래밍](http://www.kyobobook.co.kr/product/detailViewKor.laf?barcode=9791189909284)</summary>
+<summary>추가 참고 교재 : <a href="http://www.kyobobook.co.kr/product/detailViewKor.laf?barcode=9791189909284">한 권으로 읽는 컴퓨터-구조와 프로그래밍</a>
+</summary>
 
 - 목차 : https://www.onlybook.co.kr/entry/secret-programs
 

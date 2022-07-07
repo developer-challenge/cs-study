@@ -8,19 +8,25 @@
 ### 추가 교재 및 참고자료
 
 <details>
-<summary>영상 : [KOCW 운영체제 (반효경)](http://www.kocw.net/home/search/kemView.do?kemId=1046323) (27H)</summary>
+<summary>영상 : 
+<a href="http://www.kocw.net/home/search/kemView.do?kemId=1046323">
+KOCW 운영체제 (반효경)</a>
+ (27H)</summary>
 
 - 주요 내용이 잘 구성되어 있고 PPT가 영상에서 동시에 보이며, 전달 방법도 좋습니다.
 </details>
 
 <details>
-<summary>교재 : [그림으로 배우는 구조와 원리 운영체제(개정3판)](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791156642459)</summary>
+<summary>교재 : 
+<a href="http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791156642459">
+그림으로 배우는 구조와 원리 운영체제(개정3판)</a>
+</summary>
 
 - 운영체제 입문에 꼭 필요한 기본 개념과 원리를 그림을 중심으로 자세히 설명하고 있다. 최신 경향을 반영하였으며 전체 본문을 이해하기 쉽게 풀었음
 </details>
 
 <details>
-<summary>블로그 : [https://brunch.co.kr/@toughrogrammer/15](https://brunch.co.kr/@toughrogrammer/15)</summary>
+<summary>블로그 : https://brunch.co.kr/@toughrogrammer/15 </summary>
 
 - 운영 체제가 하는 일들과 그 일을 하기 위해 어떤 자료구조와 알고리즘을 사용하는지 배움
   - 프로세스 관리

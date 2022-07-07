@@ -9,19 +9,19 @@
 ### 추가 교재 및 참고자료
 
 <details>
-<summary>영상 : [네트워크 기초(개정판)](https://www.youtube.com/playlist?list=PL0d8NnikouEWcF1jJueLdjRIC4HsUlULi) (8H)</summary>
+<summary>영상 : <a href="https://www.youtube.com/playlist?list=PL0d8NnikouEWcF1jJueLdjRIC4HsUlULi">네트워크 기초(개정판)</a> (8H)</summary>
 
 - 네트워크에 대한 계층별 프로토콜에 대한 쉬운 설명과 PPT 에니메이션으로 동작 흐름을 쉽게 이해할 수 있게 설명합니다.
 </details>
 
 <details>
-<summary>교재 : [IT 엔지니어를 위한 네트워크 입문](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791165213183)</summary>
+<summary>교재 : <a href="http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791165213183">IT 엔지니어를 위한 네트워크 입문</a></summary>
 
 - 네트워크가 생소한 개발자와 서버 엔지니어에게 네트워크 기초를 쌓는 데 도움이 되고 클라우드 데브옵스 시대에 필요한 가상화 기술까지 그림으로 이해하기 쉽게 풀었음
 </details>
 
 <details>
-<summary>블로그 : [https://brunch.co.kr/@toughrogrammer/16](https://brunch.co.kr/@toughrogrammer/16)</summary>
+<summary>블로그 : https://brunch.co.kr/@toughrogrammer/16 </summary>
 
 - 컴퓨터 통신과 네트워크
 - 네트워크 용어: 노드, 호스트, 링크, 홉, 경로, 프로토콜
