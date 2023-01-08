@@ -79,7 +79,10 @@
 #### 1차 모임(1/9)
 
 - 각자 브랜치 생성 후 PR로 merge
-  - {주제}-{요일}/{Github ID}
+  - branch 명{주제}-{요일}/{Github ID}
+      ex. network-mon/HojinAn
+  - {Github ID}-{강의 내용 제목}
+      ex. HojinAn-1, 2장 운영체제 개요 및 컴퓨터시스템의 구조
 - 긱봇(geekbot)으로 데일리 스크럼 => 루틴 잡기
 
 ---
