@@ -101,16 +101,23 @@
 ![](https://i.imgur.com/jGWHtWY.png)
 
 CPU의 작업 공간 = **메모리**
+
 CPU는 매 시간(clock)마다 메모리에서 기계어를 읽어 실행
 
 I/O devices
+
 Input device와 Output device
+
 disk = 데이터를 읽어 메모리로 읽어들이기도 하고 처리 결과를 저장하기도 함.(input & output)
+
 각각의 디바이스들을 전담하는 CPU가 붙어있으면서 디바이스를 통제 = `device controller`
+
 device controller의 메모리 = `local buffer`
 
 `registers` : 메모리보다 빠르면서 정보를 저장할 수 있는 공간
+
 `mode bit`: 지금 CPU에서 실행되는게 운영체제인지 사용자 프로그램인지 구분
+
 `interrupt line` : 입출력 이벤트 발생시 확인
 
 > CPU는 항상 메모리랑만 일함.
@@ -127,6 +134,7 @@ CPU가 실행하는 instruction에 I/O가 필요한 경우,
 ![](https://i.imgur.com/Tzb7iW4.png)
 
 `1` : **사용자 모드** : 사용자 프로그램 수행 - 사용자 프로그램을 CPU에 넘기기 전에 mode bit를 1로 셋팅
+
 `0` : **모니터 모드** : OS코드 수행 - 보안을 해칠 수 있는 중요한 명령어는 모니터 모드에서만 수행 가능한 특권 명령으로 규정 - interrupt나 exception 발생시 하드웨어가 mode bit을 0으로 바꿈
 
 ### Timer
@@ -175,8 +183,13 @@ Device controller는 I/O가 끝난 경우 interrupt로 CPU에 그 사실을 알�
 
 인터럽트 당한 시점의 레지스터와 program counter를 save한 후 CPU의 제어를 인터럽트 처리 루틴에 넘긴다.
 
-`interrupt` : 하드웨어 인터럽트
-`trap` : 소프트웨어 인터럽트 - `exception`: 프로그램이 오류를 범한 경우 - `system call` : 프로그램이 커널 함수를 호출하는 경우
+`interrupt` : 하드웨어
+
+`trap` : 소프트웨어 인터럽트
+
+- `exception`: 프로그램이 오류를 범한 경우
+
+- `system call` : 프로그램이 커널 함수를 호출하는 경우
 
 > **시스템 콜을 거는 방법**
 > 사용자 프로그램이 interrupt를 걸어서 CPU가 OS로 넘어가도록 함.
@@ -243,15 +256,21 @@ CPU의 중재 없이 device controller가 device의 buffer storage의 내용을 
 ![](https://i.imgur.com/miNlh0d.png)
 
 맨 위에 CPU 존재
+
 Registers
+
 Cache memory
+
 Main Memory = DRAM으로 구성 (byte 단위 접근 가능 -> executable)
 
 ---
 
 Magnetic Disk
+
 Optical Disk
+
 Magnetic Tape
+
 (hard disk들은 sector 단위로 접근 -> non-executable)
 
 위로 갈 수록 단위당 값이 비싸기 때문에 용량이 적음
@@ -314,7 +333,7 @@ swap area의 파일은 전원이 꺼지면 필요없어지게 됨.
 
 2. 프로세스 관리
    - 각 프로그램마다 운영체제가 관리하고 있는 자료구조 존재
-   - = `PCB(Process code block)`
+   - = `PCB(Process control block)`
 
 #### stack
 
