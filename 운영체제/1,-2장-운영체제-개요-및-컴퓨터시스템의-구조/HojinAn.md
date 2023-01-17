@@ -84,7 +84,7 @@ CPU 스케줄링: 누구한테 CPU를 줄 것인가
 ### 컴퓨터 시스템 구조
 
 ```
-     컴퓨터       |  Devices
+    호스트컴퓨터    |  Devices
 CPU <-> Memory <-> Disk
                <-> I/O device
 ```
@@ -164,7 +164,7 @@ I/O 관련 instruction의 경우 device driver로 I/O 접근
 
 - 인터럽트 벡터
   - 각 인터럽트가 들어왔을 경우 어디 있는 함수를 실행해야하는지 볼 수 있는 주소
-- 인터럽트 처리 루틴(=Interrupt Service Routine)
+- 인터럽트 처리 루틴(=Interrupt Service Routine, 인터럽트 핸들러)
   - OS에 정의 되어있는 실제로 처리해야 하는 인터럽트 정보에 관한 실제 코드
 
 ### 시스템 콜 (System Call)
@@ -178,30 +178,103 @@ I/O 관련 instruction의 경우 device driver로 I/O 접근
 
 ## [2 시스템 구조 및 프로그램의 실행 Part-2](https://core.ewha.ac.kr/publicview/C0101020140314151238067290?vmode=f)
 
+CPU는 매 순간 메모리 어딘가의 기계어를 가져와서 실행. 레지스터에 있는 메모리 주소로 접근  
+instruction 하나는 숫자이므로 4byte. jump instruction 만나면 좀 멀리있는 주소 접근  
+다음 instruction 보기 전에 interrupt line 확인
+OS는 interrupt마다 처리 방법이 적혀 있음. 벡터로 주소, 처리 루틴으로 함수 정보  
+mode bit - 0(OS 점유 중): 모든 기능, 1(사용자 프로그램 점유 중): 한정된 기능  
+I/O instruction은 mode bit 0일 때만 가능  
+사용자 프로그램은 시스템 콜 => OS에 부탁해서 I/O instruction
+
+`Trap`
+
+- Exception: 프로그램 오류 (보통 프로그램 강제 종료로 이어짐)
+- System call: 필요에 의해 프로그램이 커널 함수 호출
+
+Timer가 interrupt를 걸 수도 있다. 보통 OS가 프로그램 CPU 제어 시간 설정 때 이용.
+
 ### 동기식 입출력과 비동기식 입출력
 
--
+- Synchronous I/O, Asynchronous I/O
+- Sync: 시간적으로 맞추는 것. I/O를 직접 가서 보고 확인 => 같은 것을 보고 있다는 것을 보장.  
+  I/O 작업이 완료된 후에야 제어가 프로그램에 넘어감  
+  `구현 방법`
+  1. I/O 끝날 때까지 CPU 낭비, 매시점 하나의 I/O만 I/O도 하나만 일하므로 전체적으로 낭비
+  2. I/O 완료까지 프로그램에게서 CPU 빼앗음(I/O 대기 줄에 프로그램 넣어 놓음) -> 다른 프로그램에 넘겨줌 -> I/O 끝나면 다시 Interrupt로 OS가 제어권 뺏어 옴
+- Async: I/O를 직접 보고 오지 않는 것  
+  I/O 던져 놓고 바로 돌아 옴  
+  보통 write는 비동기긴 함
+
+![](https://i.imgur.com/TZod0VU.png)
+
+동기는 1. 기다리던가, 2. CPU 뺏어서 다른 프로그램 :: 비동기는 I/O 걸고 제어권 프로그램에 즉시 복권
 
 ### DMA (Direct Memory Access)
 
--
+- Memory에 접근할 수 있는 장비. 원래는 CPU만 접근 가능.
+- 다양한 I/O 장비들에서 너무 많은 Interrupt가 들어오면 CPU가 자꾸 멈추면 오버헤드, 효율적이지 못함 => DMA가 여러 I/O local buffer의 data를 memory에 쌓아놨다가 한꺼번에 1번 interrupt 건다.
+- 따라서 byte 단위가 아닌 block 단위로 interrupt를 걸 수 있다.
 
 ### 서로 다른 입출력 명령어
 
--
+- 서로 다른 2가지
+- 일반적: 메모리만 접근하는 instruction(Memory Addresses)과 I/O 접근하는 instruction(Device Addresses) 구분
+  ![](https://i.imgur.com/LzXSfmf.png)
+
+- Memory Mapped I/O: I/O 장치도 메모리 주소의 연장 주소로 붙여 사용
+  ![](https://i.imgur.com/gR0mLCE.png)
 
 ### 저장장치 계층 구조
 
-- [12장 메모리 구조](/컴퓨터-구조/12장-메모리-구조.md)
+![](https://i.imgur.com/rT11EWE.png)
+
+Registers: 바로 위에 CPU  
+Cache Memory: CPU 안 or 밖. register와 memory 속도 차이 완충 역할  
+Main Memory: DRAM으로 구성 / 얘까지 byte 단위 접근 가능  
+하부 2차 저장소들.
+
+- 상부일 수록 빠르고, 비싸고, 휘발성이 강함
+- 아래 내용을 전부 상위에 올려 놓기는 힘들다.
+
+> Caching: 빠른 매체로 정보를 복사해두는 것. 재사용이 목적
 
 ### 프로그램의 실행 (메모리 load)
 
--
+- Program은 보통 실행 파일의 형태로 Hard Disk에 저장 -> 실행되면 Memory로 올라가서 Process가 된다.
+- 사실은 중간 단계가 있다: Virtual Memory 단계
+
+기본적으로 프로그램을 실행시키면 그 프로세스의 주소 공간(Address space)가 생긴다. 그 프로세스만의 독자적은 메모리 주소 공간  
+독자적인 공간은 Stack/Data/Code로 구성
+
+독자적인 주소 공간을 물리적 memory에 올려서 사용하는 것
+커널은 컴퓨터 부팅시 memory 올라가 상주
+사용자 프로그램은 실행하고 생겼다가 종료되면 사라진다. 하지만 프로그램을 실행했을 때 주소 공간을 전부 다 올려두는 것은 아니다. 메모리 낭비. 사용되지 않는 것은 쫓아내서 1. 지우거나 2. Disk의 Swap area에 둔다.  
+즉, 프로세스의 주소 공간은 연속해서 붙어 있는 그런 게 아니라서 한 프로세스의 stack은 memory, data는 swap area 이런 식으로 있을 수 있다.
+
+Swap area: `Physical Memory의 연장` 느낌으로 사용하는 것 => 이렇게 이용하는 게 Virtual Memory 기법인듯?
+Virtual Memory: 각 프로그램마다 독자적으로 가지고 있는 공간을 의미(후에 Virtual Memory 기법 배우긴 함)
+
+그래서 Hard Disk에서 File system과 Swap area는 목적, 용도가 다르다. File System은 전원이 나가도 내용 유지(비휘발성), Swap area는 전원 나가면 의미 없는 데이터(프로세스도 종료되므로 Memory 내용이 사라지므로 Swap area 내용도 무의미)
+
+Virtual Memory(각 프로그램 공간마다)마다의 주소가 있고, 이를 물리적 메모리 주소로 변환해줘야 한다. 메모리 주소 변환(Address translation)을 해주는 주소 변환 계층이 있다.
+
+![](https://i.imgur.com/2fB8RY7.png)
 
 ### 커널 주소 공간의 내용
 
--
+- code: 자원 관리 위한 코드, 사용자 인터페이스 제공 코드, 인터럽트(시스템콜, 하드웨어 인터럽트) 처리 코드
+- data: 하드웨어마다 자료구조 만들어서 관리하고 있다. 프로세스도 마찬가지로 PCB라고 하는 Block으로 만들어 관리.
+- stack: 함수 호출, 리턴마다 stack 영역 사용
+
+![](https://i.imgur.com/DQq5rSh.png)
 
 ### 사용자 프로그램이 사용하는 함수
 
--
+- 모든 프로그램은 함수 구조로 짜여져 있다.
+- 사용자 정의 함수
+- 라이브러리 함수: 갖다 쓴 함수, 프로그램 실행 파일에 포함
+- 커널 함수: OS의 함수. `커널 함수의 호출 = 시스템 콜` => 커널 주소 공간. 위 함수들과는 메모리 영역 자체가 다르다. 사용자 프로그램에서 이 공간으로 넘어 올 수 없다.
+
+`프로그램 실행 과정`
+A 관점에서만 바라 봤을 때, 간략한 그림
+![](https://i.imgur.com/K877Oue.png)
