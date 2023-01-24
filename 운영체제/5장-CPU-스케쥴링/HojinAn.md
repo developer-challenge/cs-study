@@ -2,7 +2,7 @@
 
 모든 프로그램은 CPU instruction 실행 단계와 오래 걸리는 I/O 작업 단계의 반복이라는 경로로 실행된다. 프로그램마다 방식이 조금씩 다를 수는 있다.
 
-I/O bound의 job들은 사람과의 interaction이기 때문에 응답 시간이 너무 짧으면 사용자 경험 측면에서 좋지 않다.  
+I/O bound의 job들은 사람과의 interaction이기 때문에 응답 시간이 너무 길면 사용자 경험 측면에서 좋지 않다.  
 Ready Queue에 들어와 있는 Process 중 어떤 것에 CPU를 줄 것인지 결정하는 메커니즘이 CPU 스케쥴링
 
 크게 2가지 이슈
