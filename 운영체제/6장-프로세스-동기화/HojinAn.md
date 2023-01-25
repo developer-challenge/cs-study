@@ -119,19 +119,19 @@ busy-wait 문제(=spin lock)는 발생
 
 ### Block / Wakeup Implementation
 
-![](https://i.imgur.com/qJjRLXF.png)
+![](https://i.imgur.com/qJjRLXF.png)  
 Semaphore 변수 값 + 잠들어 있는 Process들을 연결하기 위한 Queue `L`
 
 - Semaphore를 획득할 수 없으면 -> Process block 시킴.
 - Semephore 반납하면 -> Blocked Process 중 하나를 Ready로wakeup
 - 획득 못한 Process들은 L에다가 PCB를 계속 연결해놓는 것
 
-![](https://i.imgur.com/tfuhTRw.png)
+![](https://i.imgur.com/tfuhTRw.png)  
 Semaphore를 기다리는 Queue
 
 - 구현
   ![](https://i.imgur.com/UP9N85H.png)
-  P => 자원 획득, S.value < 0으로 여분이 없다면 block()
+  P => 자원 획득, S.value < 0으로 여분이 없다면 block()  
   V => 자원 반납, S.value <= 0으로 자는 Process 있다면 wakeup(P from S.L). (P에서 일단 S.value를 빼고 잠들었기 때문에 S.value <= 0일 때이다.)
 
 #### Which is better?
@@ -152,7 +152,7 @@ Critical Section이 긴 경우 -> 오래 기다려야 하므로 Block/Wakeup이 
    - 0 or 1만 가질 수 있는 semaphore
    - 주로 mutex에 사용
 
-> 엄밀히는 binary semaphore와 mutex가 다른 것으로 알고 있음.  
+> binary semaphore와 mutex가 다르다는 의견도 있음  
 > [참고 1](https://www.geeksforgeeks.org/difference-between-binary-semaphore-and-mutex/)  
 > [참고 2](https://blog.seongjun.kr/26-difference-between-binary-semaphore-and-mutex/)
 
@@ -165,7 +165,7 @@ Semaphore는 원치 않는 문제 발생 가능.
   Semaphore S, Semaphore Q를 동시에 모두 획득해야 일을 할 수 있을 경우 S와 Q가 1로 초기화 되어있다. Process 1이 S 갖고 있고, Process 2가 Q 갖고 있을 경우. 각자 서로의 것을 원하고만 있다. 각자 충족을 못해서 일을 못해서 영원히 대기하는 상태  
   코드 내부적으로는 문제가 없어보인다. 하지만 실제로는 문제 발생 가능. 예시의 경우는 획득 순서가 일정하도록(S 다음 Q 획득과 같이) 해서 해결 가능.
 
-- Starvation
+- Starvation  
   특정 Process가 자원을 얻지 못하고 무한히 기다리는 경우. deadlock도 starvation으로 볼 수도 있겠지만, 특정 Process끼리만 공유하면서 특정 Process만 배제하는 경우를 이야기.
 
 Dining-Philosophers Problem
