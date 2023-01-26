@@ -394,14 +394,318 @@ typedef struct
 
 # [Chapter 6. 프로세스 동기화 Part-3](https://core.ewha.ac.kr/publicview/C0101020140408134626290222?vmode=f)
 
-# [Chapter 6. 프로세스 동기화 Part-4](https://core.ewha.ac.kr/publicview/C0101020140411143154161543?vmode=f)
-
 ## Classical Problems of Syncronization
 
-- Bounded-Buffer Problem (Producer-Consumer Problem)
+- Bounded-Buffer Problem(Producer-Consumer Problem)
 - Readers-Writers Problem
 - Dining-Philosophers Problem
 
+### Bounded-Buffer Problem(Producer-Consumer Problem)
+
+![](https://i.imgur.com/yypPdu3.png)
+
+- \*버퍼의 크기가 유한한 환경에서 여러 개의 생산자(Producer) 프로세스와 소비자(Consumer) 프로세스의 문제
+
+##### \*버퍼(buffer) : 데이터를 한 곳에서 다른 한 곳으로 전송하는 동안 일시적으로 그 데이터를 보관하는 메모리의 영역
+
+- 생산자 프로세스
+
+  - 비어있는(empty) 버퍼 확인(없으면 기다림)
+  - 공유 데이터에 lock을 건다.
+  - 비어있는 버퍼에 데이터를 입력 및 버퍼 조작
+  - lock을 푼다.
+    ⇒ Full buffer 하나 증가
+    ⇒ 비어있는 버퍼가 생산자 프로세스의 자원
+
+- 소비자 프로세스
+  - 채워진(full) 버퍼 확인(없으면 기다림)
+  - 공유 데이터에 lock을 건다.
+  - 채워진 버퍼에서 데이터를 꺼내고 버퍼 조작
+  - lock을 푼다.
+    ⇒ Empty buffer 하나 증가
+    ⇒ 채워진 버퍼가 소비자 프로세스의 자원
+
+#### 공유 데이터
+
+- 버퍼 자체 및 버퍼 조작 변수(empty/full 버퍼의 시작 위치)
+
+#### 발생할 수 있는 동기화 문제점
+
+- 여러 프로세스가 하나의 공유 데이터(버퍼)에 접근하는 경우 발생
+  - 둘 이상의 생산자 프로세스가 비어있는 버퍼에 동시에 데이터를 만들어 넣으려고 할 때 또는 둘 이상의 소비자 프로세스가 채워진 버퍼에 동시에 접근하여 데이터를 꺼내려고 할 때 문제가 발생할 수 있다.
+  - 공유 데이터(버퍼)에 lock/unlock을 해야하는 문제
+- 버퍼의 크기가 유한하여 생산자나 소비자 프로세스의 자원이 없는 경우 발생
+  - 공유 버퍼가 전부 채워진 상태에서 새로운 생산자 프로세스가 도착한 경우, 생산자 입장에서 사용할 수 있는 자원이 없는 상태가 되어 자원의 여분이 생길 때까지 기다리게 된다.
+
+#### Synchronization variables
+
+- 상호 배제 : 둘 이상의 프로세스가 동시에 공유 버퍼에 접근하는 것을 막기 위해 공유 버퍼 전체에 lock을 걸어 하나의 프로세스가 배타적으로 접근하게 해야한다.
+  ⇒ Binary semaphore 필요
+- 자원의 개수 : 생산자나 소비자 프로세스가 사용할 수 있는 자원의 수를 표시(남아있는 full/empty buffer의 수 표시)
+  ⇒ Integer semaphore 필요
+
+#### 예제 코드
+
+![](https://i.imgur.com/XA2uILw.png)
+
+- `mutex = 1;` : 공유 버퍼에 접근 프로세스를 1개만 허용하는 세마포어
+- **Producer**
+  - 아이템 `x`를 생성
+  - `P(empty)` : empty buffer가 있는지 확인. 값이 0이면 대기
+  - `P(mutex)` : P연산을 통해 empty buffer가 있다면 mutex를 0으로 변경하며 lock을 건다.
+  - 아이템 `x`를 버퍼에 추가
+  - `V(mutex)` : 버퍼에 대한 조작이 끝나고 V연산을 통해 mutex를 1로 변경하며 lock을 푼다.
+  - `V(full)` : full buffer(consumer의 자원)의 수를 1 증가시킨다.
+- **Consumer**
+  - `P(full)` : full buffer가 있는지 확인. 없으면 대기
+  - `P(mutex)` : P연산을 통해 full buffer가 있다면 mutex를 0으로 변경하며 lock을 건다.
+  - 아이템 `x`를 버퍼에서 꺼내간다.
+  - `V(mutex)` : 버퍼에 대한 조작이 끝나고 V연산을 통해 mutex를 1로 변경하며 lock을 푼다.
+  - `V(empty)` : empty buffer(producer의 자원)의 수를 1 증가시킨다.
+
+### Readers-Writers Problem
+
+- 여러 개의 읽는 프로세스와 쓰는 프로세스가 존재하는 환경에서 공유 데이터인 DB에 접근할 때 발생하는 문제
+- 한 프로세스가 DB에 write 중일 때 다른 프로세스가 접근하면 안된다.
+- 여러 프로세스가 동시에 read 작업을 해도 동기화에 문제가 되지 않는다.
+
+#### 해결 방법
+
+- Writer가 DB에 접근 허가를 아직 얻지 못한 상태에서는 모든 대기 중인 Reader들은 DB에 접근할 수 있게 해준다.
+- Writer는 대기 중인 Reader가 하나도 없을 때 DB에 접근이 허용된다.
+- Writer가 DB에 접근 중이면 Reader들은 접근이 금지된다.
+- Writer가 DB에서 빠져나가야만 Reader들의 접근이 허용된다.
+
+#### 공유 데이터
+
+- DB 자체
+- readcount : 현재 DB에 접근 중인 reader의 수. 모든 읽는 프로세스가 변경할 수 있는 값이므로 공유 데이터이다.
+
+#### Synchronization variables
+
+- mutex : 공유 변수 readcount의 상호 배제를 보장하기 위해 사용하는 바이너리 세마포어 변수
+- db : Reader와 Writer가 공유 DB 자체를 올바르게 접근할 수 있도록 하는 변수
+
+#### 예제 코드
+
+![](https://i.imgur.com/RLDCokT.png)
+
+- `DB` : 공유 데이터
+- `db` : `DB`에 대한 lock에 해당하는 세마포어 변수
+- **Writer**
+  - `P(db)` : P연산을 통해 `DB`에 lock을 건다.
+  - DB에 write 작업을 수행
+  - `V(db)` : V연산을 통해 `DB`에 lock을 푼다.
+- **Reader**
+  - `P(mutex)` : readcount를 상호 배제하기 위해 P연산을 통해 mutex를 0으로 변경하며 readcount에 lock을 건다.
+    ⇒ lock을 걸어 writer의 접근은 막고 reader의 접근은 막지 않는다.
+  - `readcount++` : readcount를 1 증가 시킨다.
+  - `if (readcount == 1) P(db)` : `readcount == 1` 이라면 최초로 데이터를 읽으러 임계 구역에 진입한 것이므로 DB에 lock을 걸고, readcount가 1보다 클 경우 최초의 reader가 이미 lock이 걸어놓은 상태를 의미한다.
+  - `V(mutex)` : 공유 변수를 변경하는 작업이 끝나면 readcount에 대한 lock을 풀어준다.
+  - DB를 읽는다.
+  - `if (readcount == 0) V(db)` : `readcount == 0` 이라면 다른 프로세스들은 다 읽고 나가고 마지막으로 읽고 나가는 프로세스만 임계 구역에 남아있는 상태이므로 DB에 걸려있는 lock을 풀어준다.
+- Starvation : Writer가 DB에 접근하려면 read 중인 프로세스가 없어야 한다. Reader가 먼저 도착하여 DB에 접근할 상태일 때 Writer가 늦게 도착하여 대기 중이라면, read 작업을 무한히 수행할 경우 Writer는 영원히 임계 구역에 접근하지 못하는 상황이 발생할 수 있다.
+
+### Dining-Philosophers Problem
+
+![](https://i.imgur.com/kXiLFNK.png)
+
+다섯명의 철학자가 원탁에 앉아 생각을 하거나 식사를 반복한다. 철학자들마다 생각하는 주기와 식사하는 주기가 다르다. 배가 고파지면 왼쪽과 오른쪽에 있는 젓가락을 집어들어 식사를 하고, 식사를 마치면 젓가락을 놓고 생각을 한다. 젓가락(공유 자원)은 각 철학자들의 양쪽에 한 개씩만 놓여있고, 식사를 하기 위해서는 두 개의 젓가락이 필요하다.
+
+1. 한 철학자가 생각을 하다가 배가 고파져 식사를 하기 위해 왼쪽 젓가락을 집어든다. 다른 철학자가 이미 왼쪽 젓가락을 사용하고 있다면 내려놓을 때까지 생각하며 대기한다.
+2. 왼쪽을 들었으면 오른쪽 젓가락을 집어든다. 다른 철학자가 사용하고 있다면 1번과 마찬가지로 들 수 있을 때까지 생각하며 대기한다.
+3. 두 젓가락을 모두 들었다면 일정 시간동안 식사를 한다.
+4. 식사를 마쳤으면 오른쪽 젓가락을 내려놓고, 그 다음 왼쪽 젓가락을 내려놓는다.
+5. 다시 생각하다가 배고프면 1번으로 돌아간다.
+
+#### 문제점
+
+- Deadlock의 가능성 : 모든 철학자가 동시에 배가 고파져 왼쪽 젓가락을 집어든 경우 오른쪽 젓가락은 영원히 잡을 수 없다. 한 번 집어든 젓가락은 식사를 마치지 않는다면 놓지 않는다.
+
+#### 해결 방안
+
+1. 철학자가 식사를 할 때만 테이블에 앉을 수 있게하여, 테이블에 동시에 앉을 수 있는 철학자는 최대 4명까지 제한
+2. 젓가락을 두 개 모두 잡을 수 있을 때에만 젓가락을 잡을 수 있게 권한을 준다.
+3. 비대칭 : 짝수(홀수) 철학자는 왼쪽(오른쪽) 젓가락부터 잡을 수 있도록 한다.
+
+#### 해결 방안 2의 예제 코드
+
+```java
+enum {thinking, hungry, eating} state[5]; // 철학자들의 상태를 나타내는 공유 변수
+semaphore self[5] = 0; // 젓가락을 두 개 모두 들 수 있는 권한을 나타내는 세마포어, 0이면 권한이 없음
+semaphore mutex = 1; // 철학자의 상태를 상호 배제하기 위한 변수
+```
+
+- 일반적으로 세마포어는 자원의 갯수를 나타내며 초기값이 얼마냐에 따라 일을 하는 것인데 여기서는 젓가락을 모두 들 수 있는 권한을 0으로 설정하고, 조건에 따라 값을 변경한다.
+- **Philosopher i**
+
+```java
+do {
+  pickup(i);
+  eat();
+  putdown(i);
+  think();
+} while(1);
+
+void pickup(int i) {
+  P(mutex);
+  state[i] = hungry;
+  test(i);
+  V(mutex);
+  P(self[i]);
+}
+
+void putdown(int i) {
+  P(mutex);
+  state[i] = thinking;
+  test((i + 4) % 5); // 왼쪽 철학자의 상태를 확인
+  test((i + 1) % 5); // 오른쪽 철학자의 상태를 확인
+  V(mutex);
+}
+
+// 철학자 i 가 젓가락 두 개를 모두 잡을 수 있는 상태인지 확인하는 함수
+void test(int i) {
+  // 왼쪽 철학자가 식사 중이 아니고, 오른쪽 철학자도 식사 중이 아니고, 철학자 i가 배고픈 상태인 경우
+  if (state[(i + 4) % 5] != eating && state[i] == hungry && state[(i + 1) % 5] != eating) {
+    // 철학자 i의 상태를 eating으로 변경
+    state[i] = eating;
+    // 초기에 젓가락을 잡을 수 있는 권한을 0으로 설정하여
+    // test 함수를 통해 조건을 충족하면 철학자 i의 권한이 1로 변경된다.
+    V(self[i]);
+  }
+}
+```
+
+#### 세마포어의 문제점
+
+- 코딩하기 힘들다.
+- 정확성(correctness)의 입증이 어렵다.
+- 자발적 협력(voluntary cooperation)이 필요하다.
+- 한 번의 실수가 모든 시스템에 치명적 영향을 미친다.
+- 예시
+  - V연산을 먼저한 경우 : 상호 배제가 깨진다.
+  ```java
+  V(mutex)
+  Critical Section
+  P(mutex)
+  ```
+  - P연산을 하고 또 P연산을 한 경우 : Deadlock
+  ```java
+  P(mutex)
+  Critical Section
+  P(mutex)
+  ```
+
 ## Monitor
 
--
+- 동시 수행 중인 프로세스 사이에서 ADT(abstract data type, 추상 자료형)의 안전한 공유를 보장하기 위한 high-level synchronization construct
+- 공유 데이터에 접근하기 위해서는 모니터 내부의 프로시져를 통해서만 접근할 수 있도록 한다.
+- 세마포어는 프로그래머가 직접 코딩하여 구현하고, lock을 통해 동기화 문제를 해결하지만 모니터는 내부에서 동기화를 관리해주기 때문에 lock 없이 동기화 문제를 해결할 수 있다.
+
+```java
+monitor monitor-name {
+  // 공유 변수 선언
+  shared variable declarations
+
+  // 공유 변수에 접근하기 위한 프로시저를 모니터 내부 함수로 구현
+  procedure body P1(...) {
+    ...
+  }
+  procedure body P2(...) {
+    ...
+  }
+  procedure body P3(...) {
+    ...
+  }
+  {
+    initialization code // 초기화 코드
+  }
+}
+```
+
+![](https://i.imgur.com/pchGGA9.png)
+
+- 모니터 내에서는 한 번에 하나의 프로세스만 활동 가능하고, 모니터에 접근하지 못한 프로세스는 entry queue에서 대기(상호 배제)
+- 프로그래머가 동기화 제약 조건을 명시적으로 코딩할 필요가 없다.
+- 프로세스가 모니터 안에서 기다릴 수 있도록 하기 위해 **condition vaiable**을 사용한다.
+  ```java
+  condition x, y;
+  ```
+- Conition variable은 wait와 signal 연산에 의해서만 접근 가능
+  - `x.wait();`
+    - 자원이 있다면 바로 접근할 수 있지만 자원이 없으면 wait 함수를 통해 프로세스를 줄을 세워 기다리게 한다.
+    - x.wait()을 호출(invoke)한 프로세스는 다른 프로세스가 x.signal()을 호출하기 전까지 suspend 된다.
+  - `x.signal();` : x.signal()은 정확하게 하나의 suspend 된 프로세스를 resume 한다. Suspend 된 프로세스가 없으면 아무 일도 일어나지 않는다.
+
+### Monitor Example: Bounded-Buffer Problem
+
+```java
+monitor bounded_buffer {
+  // 공유 버퍼가 모니터 내부에 정의
+  int buffer[N];
+  condition full, empty;
+  /* condition variable은 값을 가지지 않고 자신의 큐에 프로세스를 매달아 sleep 시키거나 큐에서 프로세스를 깨우는 역할말 함 */
+
+  // 생산
+  void produre (int x) {
+    if there is no empty buffer
+      empty.wait(); // empty buffer를 기다림
+    add x to an empty buffer // 공유 데이터를 넣거나 빼는 작업 앞뒤에 lock을 하는 과정이 없다.
+    full.signal();
+  }
+
+  // 소비
+  void consume (int *x) {
+    if there is no full buffer
+      full.wait(); // full buffer를 기다림
+    remove an item from buffer and store it to *x
+    empty.signal();
+  }
+}
+```
+
+# [Chapter 6. 프로세스 동기화 Part-4](https://core.ewha.ac.kr/publicview/C0101020140411143154161543?vmode=f)
+
+### Monitor Example: Dining-Philosophers Problem
+
+```java
+Each Philosopher:
+{
+  pickup(i); // Enter monitor, 젓가락을 잡는 코드는 모니터 내부에 존재
+  eat();
+  putdown(i); // Enter monitor
+  thick();
+} while(1)
+
+monitor dining_philospher {
+  enum {thinking, hungry, eating} state[5];
+  condition self[5];
+
+  void pickup (int i) {
+    state[i] = hungry; // 철학자 i는 hungry 상태
+    test(i); // 철학자 i가 젓가락을 잡을 수 있는지 확인
+    if (state[i] != eating) // test 함수를 통해 조건을 만족하지 못해 철학자 i의 상태가 식사 중이 아니라면
+      self[i].wait(); // 젓가락을 잡을 수 있는 상태가 아니므로 대기
+  }
+
+  void putdown (int i) {
+    state[i] = thinking; // 식사를 마치면 철학자 i는 thinking 상태로 변경
+    // 인접한 철학자들의 상태를 확인
+    test((i + 4) % 5); // 왼쪽 철학자 테스트
+    test((i + 1) % 5); // 오른쪽 철학자 테스트
+  }
+
+  void test (int i) {
+    // 왼쪽 철학자가 식사 중이 아니고, 철학자 i는 배고픈 상태이고, 오른쪽 철학자도 식사 중이 아니라면
+    if ((state[(i + 4) % 5] != eating) && (state[i] == hungry) && (state[(i + 1) % 5] != eating) {
+      state[i] = eating; // 철학자 i을 식사하는 상태로 변경
+      self[i].signal(); // 혹시 철학자 i가 잠들어 있다면 깨워준다.
+    }
+  }
+
+  void init () {
+    for (int i = 0; i < 5; i++)
+      state[i] = thinking;
+  }
+}
+```
