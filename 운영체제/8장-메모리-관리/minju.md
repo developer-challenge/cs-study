@@ -222,7 +222,7 @@ hole을 한군데로 몰아 external fragmentation 해결하는 방법
 하나의 프로세스가 메모리의 여러 영역에 분산되어 올라갈 수 있음
 **(현대의 시스템이 사용하고 있음)**
 
-- Paging
+- Paging : 페이지를 구성하는 address space를 페이지 단위로 쪼개는 방법
 - Segmentation : 주소 공간을 의미 있는 공간으로 쪼개는 방법
 - Paged Segmentation
 
@@ -317,19 +317,158 @@ effective memory access time = 0.98 _ 120 + 0.02 _ 520 = 128 ns
 
 ## Valid (v)/ Invalid (i) Bit in a Page Table
 
--
+![](https://i.imgur.com/rhOkmfm.png)
+
+테이블 자료구조 특성상 위에서 부터 페이지 사용 여부에 관계없이 존재하는 페이지 테이블이 작성되어야함.
 
 ## Memory Protection
 
--
+Page table의 각 entry마다 아래의 bit를 둔다.
+
+### Protection bit
+
+page에 대한 접근 권한 (read/write/read-only)
+
+### valid-invalid bit
+
+`valid` : 해당 주소의 frame에 그 프로세스를 구성하는 유효한 내용이 있음 (접근 허용)
+
+`invalid` : 해당 주소의 frame에 유효한 내용이 없음 (접근 불허)
+
+- 프로세스가 그 주소 부분을 사용하지 않는 경우
+- 해당 페이지가 메모리에 올라와 있지 않고 swap area에 있는 경우
 
 ## Inverted Page Table
 
-- Inverted Page Table Architecture
+기존 page table의 공간 오버헤드를 해결하기 위한 방안
+
+### page table이 매우 큰 이유
+
+- 모든 프로세스 별로 그 logical address에 대응하는 모든 page에 대해 page table entry가 존재
+- 대응하는 page가 메모리에 있는 아니든 간에 page table에는 entry로 존재
+
+### Inverted Page Table Architecture
+
+기존 page table을 뒤집어 page frame 하나당 page table에 하나의 entry를 둔 것 (system-wide)
+
+시스템 안에 페이지 테이블 하나만 존재
+
+pid를 함께 저장
+
+- 각 page table entry는 각각의 물리적 메모리의 page frame이 담고 있는 내용 표시 (process-id, process의 logical address)
+- 단점 : 테이블 전체를 탐색해야함
+- 해결 방안 : associative register 사용 (expensive)
 
 ## Shared Page
 
-- Shared Pages Example
-  [메모리 관리 #3](https://core.ewha.ac.kr/publicview/C0101020140502151452123728?vmode=f)
+![](https://i.imgur.com/zJOcLVZ.png)
+
+같은 프로그램을 여러개 사용하는 경우, 공통적으로 사용되는 부분을 메모리 공유
+
+### Shared Code
+
+Re-entrant code (pure code)
+
+두가지 조건이 만족해야함.
+
+1. read-only로 하여 프로세스간 하나의 code만 메모리에 올림
+2. 모든 프로세스의 logical address space에서 동일한 위치에 있어야 함.
+
+### Private code and data
+
+공유할 필요가 없는 각자의 코드와 데이터가 포함된 각 프로세스들은 독자적으로 메모리에 올림
+logical address space의 아무곳에 와도 무방
+
+# Segmentataion
+
+프로그램은 의미단위인 여러개의 segment로 구성
+작게는 프로그램을 구성하는 함수 하나하나를 세그먼트로 정의
+크게는 프로그램 전체를 하나의 세그먼트로 정의 가능
+일반적으로 code, data, stack 부분이 하나씩 세그먼트로 정의
+
+segment는 다음과 같은 logical unit들
+
+![](https://i.imgur.com/Wg4eUZp.png)
+
+## Segmentation Architecture
+
+Logical address는 다음 두가지로 구성
+
+- segment-number
+- offset
+
+### protection
+
+각 세그먼트 별로 protection bit가 있음
+각각의 entry 별로
+유효한 bit = 0 -> 불법적인 segment
+Read/ Write / Execution 권한 bit
+
+### Sharing
+
+- shared segment
+- same segment number
+
+segment는 의미 단위기 때문에 공유와 보안에 있어 paging보다 효과적
+
+### allocation
+
+first fit / best fit
+external fragmentation 발생
+
+segment의 길이가 동일하지 않으므로 가변 분할 방식에서와 동일한 문제점 발생
+
+### segment table
+
+각 테이블의 entry는 `base`, `limit`을 가짐
+
+- base : segment의 물리적 주소의 시작점
+- limit : segment의 길이
+
+### segment-table base register (STBR)
+
+물리적 메모리에서의 segment table의 위치
+
+### segment-table length register (STLR)
+
+프로그램이 사용하는 segment의 수
+segment number s는 STLR보다 작아야 함.
+
+## Segmentation Hardware
+
+![](https://i.imgur.com/BqpPfdS.png)
+
+1. CPU가 논리 주소를 주면 이를 Segment 번호와 offset으로 변환
+2. 시작 위치는 register가 갖고 있음
+3. segment table에 시작위치에서 offset만큼 떨어진 위치에 가면 세그먼트가 물리적 메모리 위치값을 가짐
+4. 일정한 크기로 나뉜 페이지 기법과 달리 세그먼트는 일정하기 않기 때문에 table entry가 offset 값을 알고 있음
+
+## Example of Segmetation
+
+![](https://i.imgur.com/0D32vlN.png)
+
+> 페이징이 공간 낭비가 더 심함
+
+## Sharing of Segments
+
+![](https://i.imgur.com/2r8dm8S.png)
+
+## Segmentation with Paging
+
+페이징과 세그먼트를 혼합해서 사용하는 방법
+
+pure segmentation과의 차이점
+: segment-table entry가 segment의 base address를 가지고 있는 것이 아니라 segment를 구성하는 page table의 base address를 가지고 있음.
+
+### 장점
+
+- 페이지 크기별로 메모리에 올라가기 때문에 allocation 문제가 안생김
+- 의미단위로 하는 일은 segment table을 이용
+
+메모리 관리(주소 변환)에서 운영체제의 역할 : 없음 ❌
+전부 하드웨어의 역할
+I/O 장치 접근 시에는 운영체제가 개입
+
+[메모리 관리 #3](https://core.ewha.ac.kr/publicview/C0101020140502151452123728?vmode=f)
 
 [메모리 관리 #4](https://core.ewha.ac.kr/publicview/C0101020140509142939477563?vmode=f)
