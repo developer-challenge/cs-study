@@ -213,7 +213,7 @@ directory (file, index block)
 
 - 부팅에 필요한 정보 (bootstrap loader)
 
-2. FAP
+2. FAT
 
 - 메타데이터 중 일부 (위치 정보) 보관
 - 각각의 블록에 다음 블록에 대한 정보 가짐
